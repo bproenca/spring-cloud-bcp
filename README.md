@@ -3,6 +3,23 @@ Spring Cloud Example
 
 ## Start-up Order
 
+1. Spring Cloud Config Server
+    * http://localhost:8888/limits-service/default
+    * http://localhost:8888/limits-service/qa
+2. Eureka Naming Server
+    * http://localhost:8761/
+3. Limits Service
+    * http://localhost:8080/limits
+    * http://localhost:8080/message [profile = qa]
+    * http://localhost:8080/actuator/health
+
+
+Command to run
+```
+mvn spring-boot:run 
+mvn spring-boot:run -Dserver.port=8001
+```
+
 ## Ports
 
 |     Application       |     Port          |
@@ -31,29 +48,7 @@ Spring Cloud Example
 | Zipkin | http://localhost:9411/zipkin/ |
 | Spring Cloud Bus Refresh | http://localhost:8080/bus/refresh |
 
-## Zipkin Installation
-
-Quick Start Page
-- https://zipkin.io/pages/quickstart
-
-Downloading Zipkin Jar
-- https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec
-
-Command to run
-```
-RABBIT_URI=amqp://localhost java -jar zipkin-server-2.5.2-exec.jar
-```
-
 ## VM Argument
 
 -Dserver.port=8001
 
-## Commands
-
-```
-mkdir git-configuration-repo
-cd git-configuration-repo/
-git init
-git add -A
-git commit -m "first commit"
-```
