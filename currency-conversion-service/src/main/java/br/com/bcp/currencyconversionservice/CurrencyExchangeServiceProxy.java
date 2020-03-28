@@ -8,22 +8,29 @@ import org.springframework.web.bind.annotation.PathVariable;
 //  Plain Project:
 //  1- Add Feign (pom):  
 //    @FeignClient(name="currency-exchange-service", url="localhost:8000") // without service discovery (eureka) you have to hardcode URL
-//  2- Add Ribbon:  
+//  2- Add Ribbon (client side load labancer):  
 //    @FeignClient(name="currency-exchange-service")
-//    @RibbonClient(name="currency-exchange-service") [seens to be optional]
+//    @RibbonClient(name="currency-exchange-service")
 //    applicatin.properties
 //      currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
+//  3- Add Eureka (naming server / locating services)
+//    Here (Proxy) - doen't chang anything
+//    application.properties
+//        Remove  currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
+//        Add     eureka.client.service-url.default-zone=http://localhost:8761/eureka
+//    Add this annotation to the main class: @EnableDiscoveryClient
+//    Now if you add a new service (exchange), it will automatically be routed once registered in Eureka 
+//  4- <<Optional>>
+//    Since Eureka client also has a built-in load balancer that does basic round-robin load balancing.
+//    You can remove Ribbon from the projetc
 
 //@FeignClient(name="currency-exchange-service", url="localhost:8000") // without service discovery (eureka) you have to hardcode URL
 @FeignClient(name="currency-exchange-service")
 @RibbonClient(name="currency-exchange-service")
-//@FeignClient(name="netflix-zuul-api-gateway-server")
 public interface CurrencyExchangeServiceProxy {
 
     // Sem Zuul VVVVVV
     @GetMapping("/currency-exchange/from/{from}/to/{to}")
-    // Com Zuull VVVVV
-    // @GetMapping("/currency-exchange-service/currency-exchange/from/{from}/to/{to}")
     public CurrencyConversionBean retrieveExchangeValue(@PathVariable("from") String from, @PathVariable("to") String to);
 
 }
