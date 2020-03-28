@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 //    @RibbonClient(name="currency-exchange-service")
 //    applicatin.properties
 //      currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
-//  3- Add Eureka (naming server / locating services)
+//  3- Add Eureka (service registration / service discovery)
 //    Here (Proxy) - doen't chang anything
 //    application.properties
 //        Remove  currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RibbonClient(name="currency-exchange-service")
 public interface CurrencyExchangeServiceProxy {
 
-    // Sem Zuul VVVVVV
     @GetMapping("/currency-exchange/from/{from}/to/{to}")
     public CurrencyConversionBean retrieveExchangeValue(@PathVariable("from") String from, @PathVariable("to") String to);
 
