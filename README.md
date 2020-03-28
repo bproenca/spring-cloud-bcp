@@ -1,7 +1,13 @@
 # spring-cloud-bcp
 Spring Cloud Example
 
-## Start-up Order
+Command to run
+```
+mvn spring-boot:run 
+mvn spring-boot:run -Dserver.port=8001
+```
+
+## Start-up Order (and tests)
 
 1. Spring Cloud Config Server
     * http://localhost:8888/limits-service/default
@@ -12,13 +18,24 @@ Spring Cloud Example
     * http://localhost:8080/limits
     * http://localhost:8080/message [profile = qa]
     * http://localhost:8080/actuator/health
+    * change and commit file 
+      * https://github.com/bproenca/spring-cloud-bcp-config-repo/blob/master/limits-service-qa.properties
+    * Refresh config
+      * [POST] http://localhost:8080/actuator/refresh
+    * Check again
+      * http://localhost:8080/message
+4. Exchange Service
+    * Run 2 instances
+    * mvn spring-boot:run (port 8000)
+    * mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8001
+    * http://localhost:8000/h2-console
+      * JDBC URL: jdbc:h2:mem:testdb
+      * Query: `select * from exchange_value`
+    * http://localhost:8000/currency-exchange/from/EUR/to/INR
+5. Conversion (calculation) Service
+    * http://localhost:8100/currency-converter/from/EUR/to/INR/quantity/10 [Without Feign]
+    * http://localhost:8100/currency-converter-feign/from/EUR/to/INR/quantity/10
 
-
-Command to run
-```
-mvn spring-boot:run 
-mvn spring-boot:run -Dserver.port=8001
-```
 
 ## Ports
 
