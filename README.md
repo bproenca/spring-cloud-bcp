@@ -80,12 +80,12 @@ Exchange can have many instances running, add **Ribbon** to Load Balance between
 *The problem is when new instances are added/removed.*  
 **Eureka** (together with Feign) acts as a service discovery (+load balance). So when new instances of Exchange go Up/Down, Conversion service is not affected (only healthy instances are routed)
 
-### Implementation step-by-step  
-1. Add Feign (pom):  
+### Implementation step-by-step  (CurrencyExchangeServiceProxy.java)
+1. Add Feign (Java to HTTP client binder):  
     ```java
     @FeignClient(name="currency-exchange-service", url="localhost:8000") // without service discovery (eureka) you have to hardcode URL
     ```
-2. Add Ribbon (client side load labancer):  
+2. Add Ribbon (Client Side Load Balancer):  
     ```java
     @FeignClient(name="currency-exchange-service")
     @RibbonClient(name="currency-exchange-service")
@@ -94,7 +94,7 @@ Exchange can have many instances running, add **Ribbon** to Load Balance between
     ```properties
     currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
     ```
-3. Add Eureka (service registration / service discovery)
+3. Add Eureka (Service Registration / Service Discovery)
     * Proxy - doen't change
     * application.properties
       ```properties
