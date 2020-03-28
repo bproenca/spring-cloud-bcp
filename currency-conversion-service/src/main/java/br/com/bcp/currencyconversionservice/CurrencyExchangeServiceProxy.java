@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 //    applicatin.properties
 //      currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
 //  3- Add Eureka (service registration / service discovery)
-//    Here (Proxy) - doen't chang anything
+//    Here (Proxy) - doen't change anything
 //    application.properties
 //        Remove  currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
 //        Add     eureka.client.service-url.default-zone=http://localhost:8761/eureka
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 //    Now if you add a new service (exchange), it will automatically be routed once registered in Eureka 
 //  4- <<Optional>>
 //    Since Eureka client also has a built-in load balancer that does basic round-robin load balancing.
-//    You can remove Ribbon from the projetc
+//    You can remove Ribbon from the project
 
 //@FeignClient(name="currency-exchange-service", url="localhost:8000") // without service discovery (eureka) you have to hardcode URL
 @FeignClient(name="currency-exchange-service")

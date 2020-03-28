@@ -12,9 +12,44 @@ mvn spring-boot:run -Dserver.port=8001
 1. Spring Cloud Config Server
     * http://localhost:8888/limits-service/default
     * http://localhost:8888/limits-service/qa
-2. Eureka Naming Server
+    * Config Storage
+      * uri: https://github.com/bproenca/spring-cloud-bcp-config-repo.git
+      * Files in this Repo:
+        * limits-service.properties
+        * limits-service-qa.properties
+        * *qa inherits default properties (eg. maximum property):*
+        ```json
+        {
+          "name": "limits-service",
+          "profiles": [
+            "qa"
+          ],
+          "label": null,
+          "version": "550508df700d3e0729f25f3a4de49dabc34277d9",
+          "state": null,
+          "propertySources": [
+            {
+              "name": "https://github.com/bproenca/spring-cloud-bcp-config-repo.git/limits-service-qa.properties",
+              "source": {
+                "limits-service.minimum": "4321",
+                "message": "Ola Mundo"
+              }
+            },
+            {
+              "name": "https://github.com/bproenca/spring-cloud-bcp-config-repo.git/limits-service.properties",
+              "source": {
+                "limits-service.minimum": "11",
+                "limits-service.maximum": "1111",
+                "message": "Hello World"
+              }
+            }
+          ]
+        }
+        ```
+2. Eureka Naming Server (service registration / service discovery)
     * http://localhost:8761/
 3. Limits Service
+    * This service loads it's configuration from Config Server
     * http://localhost:8080/limits
     * http://localhost:8080/message [profile = qa]
     * http://localhost:8080/actuator/health
@@ -36,6 +71,41 @@ mvn spring-boot:run -Dserver.port=8001
     * http://localhost:8100/currency-converter/from/EUR/to/INR/quantity/10 [Without Feign]
     * http://localhost:8100/currency-converter-feign/from/EUR/to/INR/quantity/10
 
+
+## Conversion >> Exchange:
+
+Conversion Service consumes an API from Exchange Service.  
+**Feign** is used for API communication (make this call simple).  
+Exchange can have many instances running, add **Ribbon** to Load Balance between all instances (hardcoded list of servers).  
+*The problem is when new instances are added/removed.*  
+**Eureka** (together with Feign) acts as a service discovery (+load balance). So when new instances of Exchange go Up/Down, Conversion service is not affected (only healthy instances are routed)
+
+### Implementation step-by-step  
+1. Add Feign (pom):  
+    ```java
+    @FeignClient(name="currency-exchange-service", url="localhost:8000") // without service discovery (eureka) you have to hardcode URL
+    ```
+2. Add Ribbon (client side load labancer):  
+    ```java
+    @FeignClient(name="currency-exchange-service")
+    @RibbonClient(name="currency-exchange-service")
+    ```
+    applicatin.properties
+    ```properties
+    currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
+    ```
+3. Add Eureka (service registration / service discovery)
+    * Proxy - doen't change
+    * application.properties
+      ```properties
+      currency-exchange-service.ribbon.listOfServers=http://localhost:8000,http://localhost:8001
+      eureka.client.service-url.default-zone=http://localhost:8761/eureka
+      ```
+    * Add this annotation to the main class: `@EnableDiscoveryClient`
+    * Now if you add a new service (exchange), it will automatically be routed once registered in Eureka 
+4. *Optional*
+    * Since Eureka client also has a built-in load balancer that does basic round-robin load balancing.
+    * You can remove Ribbon from the project
 
 ## Ports
 
