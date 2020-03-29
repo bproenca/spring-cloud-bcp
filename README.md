@@ -12,41 +12,37 @@ Sleuth and Zipkin added to the projects: *Zuul, Conversion and Exchange*.
 
 1. Add dependency to pom.xml:  
   ```xml
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-netflix-zuul</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-sleuth</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-sleuth-zipkin</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-bus-amqp</artifactId>
-      </dependency>
+		<!-- distributed tracing -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-sleuth</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-zipkin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
   ```
 2. Add Sampler:
-
-```java
-...
-import brave.sampler.Sampler;
-
-@EnableZuulProxy
-@EnableDiscoveryClient
-@SpringBootApplication
-public class AppNetflixZuulApiGatewayServer {
+  ```java
   ...
-  
-	@Bean
-	public Sampler defaultSampler() {
-		return Sampler.ALWAYS_SAMPLE;
-	}
-}
-```
+  import brave.sampler.Sampler;
+
+  @EnableZuulProxy
+  @EnableDiscoveryClient
+  @SpringBootApplication
+  public class AppNetflixZuulApiGatewayServer {
+    ...
+    
+    @Bean
+    public Sampler defaultSampler() {
+      return Sampler.ALWAYS_SAMPLE;
+    }
+  }
+  ```
 
 **Command to run:**
 ```
@@ -56,6 +52,8 @@ mvn spring-boot:run -Dserver.port=8001
 
 ## Start-up Order (and tests)
 
+1. RabbitMQ and Zipkin Server
+    * ``
 1. Spring Cloud Config Server **(optional)**
 1. Eureka Naming Server (service registration / service discovery)
     * http://localhost:8761/
@@ -97,7 +95,8 @@ public interface CurrencyExchangeServiceProxy {
 version: "3"
 services:
   rabbitMq:
-    image: rabbitmq
+    #image: rabbitmq:3-management
+    image: rabbitmq:3
     hostname: mqbcp
     ports:
       - "5672:5672"
@@ -106,13 +105,11 @@ services:
       - bcpnet
 
   zipkin:
-    image: openzipkin/zipkin
+    image: openzipkin/zipkin:2
     depends_on:
       - rabbitMq
     ports:
       - "9411:9411"
-    environment:
-      - "RABBIT_URI=amqp://mqbcp"
     networks:
       - bcpnet
 

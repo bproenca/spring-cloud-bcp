@@ -1,7 +1,8 @@
 version: "3"
 services:
   rabbitMq:
-    image: rabbitmq
+    #image: rabbitmq:3-management
+    image: rabbitmq:3
     hostname: mqbcp
     ports:
       - "5672:5672"
@@ -10,13 +11,11 @@ services:
       - bcpnet
 
   zipkin:
-    image: openzipkin/zipkin
+    image: openzipkin/zipkin:2
     depends_on:
       - rabbitMq
     ports:
       - "9411:9411"
-    environment:
-      - "RABBIT_URI=amqp://mqbcp"
     networks:
       - bcpnet
 
