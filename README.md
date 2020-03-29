@@ -12,6 +12,18 @@ Sleuth and Zipkin added to the projects: *Zuul, Conversion and Exchange*.
 
 1. Add dependency to pom.xml:  
   ```xml
+  	<parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.6.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
+	  </parent>
+
+	  <properties>
+		  <java.version>11</java.version>
+		  <spring-cloud.version>Hoxton.SR3</spring-cloud.version>
+	  </properties>
+
 		<!-- distributed tracing -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -53,23 +65,15 @@ mvn spring-boot:run -Dserver.port=8001
 ## Start-up Order (and tests)
 
 1. RabbitMQ and Zipkin Server
-    * ``
+    * `docker-compose up -d`
 1. Spring Cloud Config Server **(optional)**
 1. Eureka Naming Server (service registration / service discovery)
-    * http://localhost:8761/
 1. Exchange Service
-    * Run 2 instances
-    * mvn spring-boot:run (port 8000)
-    * mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8001
 1. Zuul Api Gateway
-    * Direct Call: http://localhost:8765/currency-exchange-service/currency-exchange/from/EUR/to/INR 
-    * Open Feign: http://localhost:8765/currency-conversion-service/currency-converter-feign/from/USD/to/INR/quantity/10|
-    * Check available routes:
-      * Add this property: `management.endpoints.web.exposure.include=health,env,routes`
-      * http://localhost:8765/actuator/routes
 1. Conversion (calculation) Service
-    * http://localhost:8100/currency-converter/from/EUR/to/INR/quantity/10 [Without Feign]
-    * http://localhost:8100/currency-converter-feign/from/EUR/to/INR/quantity/10 [With Feign + Zuul]
+    * http://localhost:8100/currency-converter-feign/from/EUR/to/INR/quantity/10
+1. Check Zipkin Server:
+    * http://localhost:9411/zipkin/
 
 
 ## Conversion >> Exchange:
