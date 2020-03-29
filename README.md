@@ -1,5 +1,5 @@
 # spring-cloud-bcp
-Spring Cloud Example
+Adapting the project to use an API gateway (Zuul)
 
 Command to run
 ```
@@ -9,65 +9,20 @@ mvn spring-boot:run -Dserver.port=8001
 
 ## Start-up Order (and tests)
 
-1. Spring Cloud Config Server
-    * http://localhost:8888/limits-service/default
-    * http://localhost:8888/limits-service/qa
-    * Config Storage
-      * uri: https://github.com/bproenca/spring-cloud-bcp-config-repo.git
-      * Files in this Repo:
-        * limits-service.properties
-        * limits-service-qa.properties
-        * *qa inherits default properties (eg. maximum property):*
-        ```json
-        {
-          "name": "limits-service",
-          "profiles": [
-            "qa"
-          ],
-          "label": null,
-          "version": "550508df700d3e0729f25f3a4de49dabc34277d9",
-          "state": null,
-          "propertySources": [
-            {
-              "name": "https://github.com/bproenca/spring-cloud-bcp-config-repo.git/limits-service-qa.properties",
-              "source": {
-                "limits-service.minimum": "4321",
-                "message": "Ola Mundo"
-              }
-            },
-            {
-              "name": "https://github.com/bproenca/spring-cloud-bcp-config-repo.git/limits-service.properties",
-              "source": {
-                "limits-service.minimum": "11",
-                "limits-service.maximum": "1111",
-                "message": "Hello World"
-              }
-            }
-          ]
-        }
-        ```
-2. Eureka Naming Server (service registration / service discovery)
+1. Spring Cloud Config Server **(optional)**
+1. Eureka Naming Server (service registration / service discovery)
     * http://localhost:8761/
-3. Limits Service
-    * This service loads it's configuration from Config Server
-    * http://localhost:8080/limits
-    * http://localhost:8080/message [profile = qa]
-    * http://localhost:8080/actuator/health
-    * change and commit file 
-      * https://github.com/bproenca/spring-cloud-bcp-config-repo/blob/master/limits-service-qa.properties
-    * Refresh config
-      * [POST] http://localhost:8080/actuator/refresh
-    * Check again
-      * http://localhost:8080/message
-4. Exchange Service
+1. Exchange Service
     * Run 2 instances
     * mvn spring-boot:run (port 8000)
     * mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8001
-    * http://localhost:8000/h2-console
-      * JDBC URL: jdbc:h2:mem:testdb
-      * Query: `select * from exchange_value`
-    * http://localhost:8000/currency-exchange/from/EUR/to/INR
-5. Conversion (calculation) Service
+1. Zuul Api Gateway
+    * Direct Call: http://localhost:8765/currency-exchange-service/currency-exchange/from/EUR/to/INR 
+    * Open Feign: http://localhost:8765/currency-conversion-service/currency-converter-feign/from/USD/to/INR/quantity/10|
+    * Check available routes:
+      * Add this property: `management.endpoints.web.exposure.include=health,env,routes`
+      * http://localhost:8765/actuator/routes
+1. Conversion (calculation) Service
     * http://localhost:8100/currency-converter/from/EUR/to/INR/quantity/10 [Without Feign]
     * http://localhost:8100/currency-converter-feign/from/EUR/to/INR/quantity/10
 
@@ -126,12 +81,12 @@ Exchange can have many instances running, add **Ribbon** to Load Balance between
 |     Application       |     URL          |
 | ------------- | ------------- |
 | Limits Service | http://localhost:8080/limits POST -> http://localhost:8080/actuator/refresh|
-|Spring Cloud Config Server| http://localhost:8888/limits-service/default http://localhost:8888/limits-service/dev |
-|  Currency Converter Service - Direct Call| http://localhost:8100/currency-converter/from/USD/to/INR/quantity/10|
-|  Currency Converter Service - Feign| http://localhost:8100/currency-converter-feign/from/EUR/to/INR/quantity/10000|
+| Spring Cloud Config Server | http://localhost:8888/limits-service/default http://localhost:8888/limits-service/dev |
+| Currency Converter Service - Direct Call | http://localhost:8100/currency-converter/from/USD/to/INR/quantity/10 |
+| Currency Converter Service - Feign | http://localhost:8100/currency-converter-feign/from/EUR/to/INR/quantity/10000 |
 | Currency Exchange Service | http://localhost:8000/currency-exchange/from/EUR/to/INR http://localhost:8001/currency-exchange/from/USD/to/INR|
 | Eureka | http://localhost:8761/|
-| Zuul - Currency Exchange & Exchange Services | http://localhost:8765/currency-exchange-service/currency-exchange/from/EUR/to/INR http://localhost:8765/currency-conversion-service/currency-converter-feign/from/USD/to/INR/quantity/10|
+| Zuul - Currency Exchange & Exchange Services | http://localhost:8765/currency-exchange-service/currency-exchange/from/EUR/to/INR <br/> http://localhost:8765/currency-conversion-service/currency-converter-feign/from/USD/to/INR/quantity/10|
 | Zipkin | http://localhost:9411/zipkin/ |
 | Spring Cloud Bus Refresh | http://localhost:8080/bus/refresh |
 
