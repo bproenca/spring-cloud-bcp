@@ -107,6 +107,38 @@ Exchange can have many instances running, add **Ribbon** to Load Balance between
     * Since Eureka client also has a built-in load balancer that does basic round-robin load balancing.
     * You can remove Ribbon from the project
 
+## Config Server (refresh all instances)
+
+Scenario: run several instances of Limits Service  
+Event: a configuration (from Config Server) is changed  
+Solution: you have to POST **all** instances `/actuator/refresh` in order to retrieve the current value
+
+Workaround *limits-service projetct*:  
+* Run RabbitMQ server
+* Add **spring-cloud-starter-bus** dependency
+* Add `management.endpoints.web.exposure.include=*` (or refresh)
+* Postman [POST] http://localhost:8080/actuator/bus-refresh
+
+## Fault Tolerance with Hystrix
+
+* Add dependency: `spring-cloud-starter-hystrix` 
+* `@EnableHystrix` at startup class
+* Implement fallback:
+```java
+    ...
+    @GetMapping("/fault-tolerance-example")
+    @HystrixCommand(fallbackMethod = "fallbackRetrieveConfiguration")
+    public LimitConfiguration retrieveConfiguration() {
+        String errorMessage = "## Error to test fallback ##";
+        logger.info("Not Available {}", errorMessage);
+        throw new RuntimeException(errorMessage);
+    }
+
+    public LimitConfiguration fallbackRetrieveConfiguration() {
+        return new LimitConfiguration(101, 202);
+    }
+```
+
 ## Ports
 
 |     Application       |     Port          |

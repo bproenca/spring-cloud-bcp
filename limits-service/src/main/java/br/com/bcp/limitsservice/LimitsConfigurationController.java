@@ -1,5 +1,10 @@
 package br.com.bcp.limitsservice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -16,6 +21,8 @@ import br.com.bcp.limitsservice.bean.LimitConfiguration;
 //management.endpoints.web.exposure.include=health,env,refresh
 public class LimitsConfigurationController {
 
+    private Logger logger = LoggerFactory.getLogger(LimitsConfigurationController.class);
+
     @Autowired
     private Configuration configuration;
 
@@ -23,6 +30,19 @@ public class LimitsConfigurationController {
     public LimitConfiguration retrieveLimitisFromConfiguration() {
         return new LimitConfiguration(configuration.getMinimum(), configuration.getMaximum());
     }
+
+    @GetMapping("/fault-tolerance-example")
+    @HystrixCommand(fallbackMethod = "fallbackRetrieveConfiguration")
+    public LimitConfiguration retrieveConfiguration() {
+        String errorMessage = "## Error to test fallback ##";
+        logger.info("Not Available {}", errorMessage);
+        throw new RuntimeException(errorMessage);
+    }
+
+    public LimitConfiguration fallbackRetrieveConfiguration() {
+        return new LimitConfiguration(101, 202);
+    }
+
 
     @Value("${message:Hello default}")
     private String message;
