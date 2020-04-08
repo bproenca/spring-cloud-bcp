@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @EnableFeignClients("br.com.bcp.currencyconversionservice")
-//@EnableDiscoveryClient
+@EnableDiscoveryClient
 public class AppConversion {
 
 	public static void main(String[] args) {

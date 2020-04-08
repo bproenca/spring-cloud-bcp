@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 // http://localhost:8765/{application-name}/{uri}/from/EUR/to/INR
 // http://localhost:8765/currency-exchange-service/currency-exchange/from/EUR/to/INR
 
-@FeignClient(name = "currency-exchange-service", url = "${CURRENCY_EXCHANGE_URI}")
+//@FeignClient(name = "currency-exchange-service", url = "${CURRENCY_EXCHANGE_URI}")
+@FeignClient(name = "currency-exchange-service") //find URL in the naming service (eureka)
 //@FeignClient(name="netflix-zuul-api-gateway-server")
 //@RibbonClient(name="currency-exchange-service")
 public interface CurrencyExchangeServiceProxy {
