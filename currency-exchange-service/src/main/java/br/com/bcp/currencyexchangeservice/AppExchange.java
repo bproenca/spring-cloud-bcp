@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 //import brave.sampler.Sampler;
 
 @SpringBootApplication
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 public class AppExchange {
 
 	public static void main(String[] args) {
