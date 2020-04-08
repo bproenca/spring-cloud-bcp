@@ -1,5 +1,5 @@
 # spring-cloud-bcp
-Dockerizing the project
+Dockerizing the project (stack)
 
 ## Steps
 
@@ -14,12 +14,9 @@ Dockerizing the project
     ```
 1. Add a maven plugin **dockerfile-maven-plugin** in each project
 1. Create **docker-compose.yml**
-1. Modify *application.properties* to reference Naming Service by **docker service name**
-    * `eureka.client.service-url.defaultZone=http://naming-server:8761/eureka/`
 1. Conversion calls Exchange using Feign (host is resolved in Eureka)
     ```java
-    //find URL in the naming service (eureka)
-    @FeignClient(name = "currency-exchange-service")
+    @FeignClient(name = "currency-exchange-service", url = "${CURRENCY_EXCHANGE_URI}")
     public interface CurrencyExchangeServiceProxy {
         @GetMapping("/currency-exchange/from/{from}/to/{to}")
         public CurrencyConversionBean retrieveExchangeValue(@PathVariable("from") String from, @PathVariable("to") String to);
@@ -32,15 +29,18 @@ Dockerizing the project
 mvn clean package
 ```
 
-1. Eureka Naming Server (service registration / service discovery)
-    * http://localhost:8761/
 1. Exchange Service
+    * 2 replicas are running (see docker-compose)
+    * Load balance is done by swarm
     * http://localhost:8000/currency-exchange/from/EUR/to/INR
 1. Conversion (calculation) Service
     * http://localhost:8100/currency-converter-feign/from/EUR/to/INR/quantity/10
 
 
 ```
-docker-compose up
+docker swarm init
+docker stack deploy -c docker-compose.yml bcp-currency
+docker stack ps bcp-currency
+docker stack rm bcp-currency
 ```
 

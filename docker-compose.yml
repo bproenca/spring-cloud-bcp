@@ -1,28 +1,21 @@
 version: "3"
 services:
-  naming-server:
-    image: bproenca/netflix-eureka-naming-server:1.0
-    ports:
-      - "8761:8761"
-    restart: always
-    networks:
-      - currency-compose-network
-
   currency-exchange-service:
-    image: bproenca/currency-exchange-service:1.0
+    image: bproenca/currency-exchange-service:1.1
     ports:
       - "8000:8000"
-    depends_on:
-      - naming-server  
+    deploy:
+      replicas: 2
     networks:
       - currency-compose-network
 
   currency-conversion-service:
-    image: bproenca/currency-conversion-service:1.0
+    image: bproenca/currency-conversion-service:1.1
     ports:
       - "8100:8100"
+    environment:
+      CURRENCY_EXCHANGE_URI: http://currency-exchange-service:8000
     depends_on:
-      - naming-server
       - currency-exchange-service
     networks:
       - currency-compose-network
