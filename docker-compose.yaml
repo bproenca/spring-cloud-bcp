@@ -10,8 +10,8 @@ services:
 
   currency-exchange-service:
     image: bproenca/currency-exchange-service:1.0
-    ports:
-      - "8000:8000"
+    #ports:
+    #  - "8000:8000"
     restart: always
     depends_on:
       - naming-server
