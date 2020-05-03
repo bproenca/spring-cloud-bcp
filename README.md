@@ -24,4 +24,6 @@ docker push bproenca/currency-conversion-service-k8s-gcp:1.0
 gcloud container clusters resize --zone us-central1-a cluster-bcp --num-nodes=3
 kubectl apply -f deployment.yaml
 
+kubectl delete -f deployment.yaml
+gcloud container clusters resize --zone us-central1-a cluster-bcp --num-nodes=0
 ```
